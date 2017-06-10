@@ -45,16 +45,18 @@ cve_products.each do |product|
   cve_search_results = search_page.css('.searchresults tr.srrowns')
 
   if cve_search_results.length > 0
-    latest_cve_result = cve_search_results[0]
+    latest_search_cve = cve_search_results[0].css('td')[1].text
+    latest_seen_cve = latest_cve_info[product[:name]][:cve_id]
     # do we have new cves?
-    if latest_cve_result.css('td')[1].text != latest_cve_info[product[:name]][:cve_id]
+    if latest_search_cve != latest_seen_cve
       new_product_cves[product[:name]] = []
 
       cve_search_results.each do |cve_result|
         cve_id = cve_result.css('td')[1].text
         cve_href = cve_result.css('td a')[1]['href']
 
-        if cve_id == latest_cve_info[product[:name]][:cve_id]
+        # stop when we hit the latest known cve
+        if cve_id == latest_seen_cve
           break
         end
 
@@ -62,20 +64,21 @@ cve_products.each do |product|
       end
     end
 
-   latest_cve_info[product[:name]][:cve_id] = latest_cve_result.css('td')[1].text
-   latest_cve_info[product[:name]][:last_time_run] = Time.now.utc
+    latest_cve_info[product[:name]][:cve_id] = latest_search_cve
+    latest_cve_info[product[:name]][:last_time_run] = Time.now.utc
   end
 end
 
 # build message
 message = ""
-new_product_cves.each do |product_cve|
-  if product_cve[1].length == 0
+new_product_cves.each do |name, cves|
+  # no new cves for this product?
+  if cves.length == 0
     next
   end
 
-  message += "New CVEs for #{product_cve[0]}:\n"
-  product_cve[1].each do |cve|
+  message += "New CVEs for #{name}:\n"
+  cves.each do |cve|
     message += "#{cve[:cve_id]} #{cve[:cve_url]}\n"
   end
   message += "\n"
