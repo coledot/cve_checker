@@ -7,8 +7,8 @@ require 'mail'
 
 cve_base_uri = 'https://www.cvedetails.com'
 
-gmail_address = 'cole.thompson@gmail.com'
 secrets = YAML.load_file "secrets.yml"
+gmail_address = secrets['gmail_address']
 gmail_password = secrets['gmail_password']
 
 cve_products = [
