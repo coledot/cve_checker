@@ -26,12 +26,20 @@ cve_products = [
   },
 ]
 
-# FIXME gracefully handle a missing file and/or missing products
-latest_cve_info = YAML.load_file "latest_cve.yml"
+begin
+  latest_cve_info = YAML.load_file "latest_cve.yml"
+rescue Errno::ENOENT
+  latest_cve_info = {}
+end
 
 new_product_cves = {}
 
 cve_products.each do |product|
+  # is a product missing from latest_cve.yml?
+  if latest_cve_info[product[:name]] == nil
+    latest_cve_info[product[:name]] = {}
+  end
+
   # do search
   search_page = Nokogiri::HTML(open(product[:search_uri]))
   cve_search_results = search_page.css('.searchresults tr.srrowns')
@@ -85,8 +93,8 @@ if message != ""
     delivery_method :smtp, smtp_options
   end
   Mail.deliver do
-    to      "cole.thompson@gmail.com"
-    from    "cole.thompson@gmail.com"
+    to      gmail_address
+    from    gmail_address
     subject "New CVEs found"
     body    message
   end
