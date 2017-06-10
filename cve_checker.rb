@@ -20,6 +20,10 @@ cve_products = [
     name: "OpenVPN",
     search_uri: 'https://www.cvedetails.com/vulnerability-list/vendor_id-3278/product_id-5768/Openvpn-Openvpn.html'
   },
+  {
+    name: "OpenSSH",
+    search_uri: 'https://www.cvedetails.com/vulnerability-list/vendor_id-97/product_id-585/Openbsd-Openssh.html'
+  },
 ]
 
 # FIXME gracefully handle a missing file and/or missing products
